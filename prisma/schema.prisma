@@ -1,0 +1,70 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Negocio {
+  id            String         @id @default(uuid())
+  nome          String
+  telefone      String
+  email         String         @unique
+  senha         String
+  colaboradores Colaborador[]
+  agendamentos  Agendamento[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  @@map("negocios")
+}
+
+model Colaborador {
+  id                String             @id @default(uuid())
+  nome              String
+  cargo             String
+  negocioId         String
+  negocio           Negocio            @relation(fields: [negocioId], references: [id])
+  horariosDisponiveis HorarioDisponivel[]
+  agendamentos      Agendamento[]
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+
+  @@map("colaboradores")
+}
+
+model HorarioDisponivel {
+  id            String      @id @default(uuid())
+  dataHora      DateTime
+  disponivel    Boolean     @default(true)
+  colaboradorId String
+  colaborador   Colaborador @relation(fields: [colaboradorId], references: [id])
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@map("horarios_disponiveis")
+}
+
+model Agendamento {
+  id              String      @id @default(uuid())
+  clienteNome     String
+  clienteTelefone String
+  dataHora        DateTime
+  status          String      @default("pendente") // pendente, confirmado, cancelado, concluido
+  negocioId       String
+  colaboradorId   String
+  negocio         Negocio     @relation(fields: [negocioId], references: [id])
+  colaborador     Colaborador @relation(fields: [colaboradorId], references: [id])
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  @@map("agendamentos")
+}

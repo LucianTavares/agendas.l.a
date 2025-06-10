@@ -1,0 +1,52 @@
+### Variáveis
+@baseUrl = http://localhost:3000
+@authToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI3NzdlN2MwMS1hYWEwLTQwZDQtOWVhYi0zNTBhNzRkOTgxNTgiLCJlbWFpbCI6InRlc3RlQGVtYWlsLmNvbSIsImlhdCI6MTc0OTA3Nzc1MSwiZXhwIjoxNzQ5MTY0MTUxfQ.d6GArzKwlPSWQVQPld7dSuGzSq0XSh5jOAXIRYXjVfU
+
+
+### Login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+    "email": "teste@email.com",
+    "senha": "123456"
+}
+
+### Criar novo agendamento
+POST {{baseUrl}}/agendamentos
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+    "clienteNome": "João Silva",
+    "clienteTelefone": "11999999999",
+    "dataHora": "2024-03-10T10:00:00Z",
+    "negocioId": "id_do_negocio",
+    "colaboradorId": "id_do_colaborador"
+}
+
+### Listar agendamentos de um negócio
+GET {{baseUrl}}/agendamentos/negocio/id_do_negocio
+Authorization: Bearer {{authToken}}
+
+### Atualizar status do agendamento
+PUT {{baseUrl}}/agendamentos/id_do_agendamento/status
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+    "status": "confirmado"
+}
+
+### Dicas de uso:
+# 1. Substitua 'seu_token_jwt_aqui' pelo token recebido após o login
+# 2. Substitua 'id_do_negocio' pelo ID real do negócio
+# 3. Substitua 'id_do_colaborador' pelo ID real do colaborador
+# 4. Substitua 'id_do_agendamento' pelo ID real do agendamento
+# 5. Os status possíveis são: "pendente", "confirmado", "cancelado", "concluido"
+
+### Exemplo de fluxo de uso:
+# 1. Execute o login para obter o token JWT
+# 2. Copie o token recebido e substitua em {{authToken}}
+# 3. Use o token para fazer as demais requisições
+# 4. O token é válido por 24 horas 

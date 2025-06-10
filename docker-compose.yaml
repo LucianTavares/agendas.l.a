@@ -1,0 +1,60 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+      - "9229:9229"
+      - "5555:5555"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/marquei?schema=public
+      - NODE_ENV=development
+      - JWT_SECRET=desenvolvimento_local_secreto
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: >
+      sh -c "
+        echo 'Aguardando o banco de dados...' &&
+        while ! nc -z db 5432; do
+          sleep 1
+        done &&
+        echo 'Banco de dados pronto!' &&
+        npx prisma migrate deploy &&
+        npx prisma generate &&
+        if ! psql -h db -U postgres -d marquei -c 'SELECT * FROM negocios LIMIT 1' > /dev/null 2>&1; then
+          echo 'Executando seed...' &&
+          npx prisma db seed
+        fi &&
+        npm run start:dev
+      "
+    depends_on:
+      - db
+    networks:
+      - marquei-network
+
+  db:
+    image: postgres:15-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=marquei
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - marquei-network
+
+volumes:
+  postgres_data:
+
+networks:
+  marquei-network:
+    driver: bridge 
